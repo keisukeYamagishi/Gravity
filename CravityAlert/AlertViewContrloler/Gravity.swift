@@ -1,34 +1,11 @@
-# Gravity
+//
+//  Gravity.swift
+//  sevens
+//
+//  Created by Shichimitoucarashi on 3/24/19.
+//  Copyright © 2019 keisuke yamagishi. All rights reserved.
+//
 
-[![](https://img.shields.io/badge/lang-Swift-fc3158)](https://swift.org/)
-
-## OverView
-
-
-
-## Use it
-
-|CI|build|
-|:----|:----|
-|github actions||
-
-***Via SSH***: For those who plan on regularly making direct commits, cloning over SSH may provide a better experience (which requires uploading SSH keys to GitHub):
-
-```
-$ git clone git@github.com:keisukeYamagishi/Gravity.git
-```
-***Via https***: For those checking out sources as read-only, HTTPS works best:
-
-```
-$ git clone https://github.com/keisukeYamagishi/Gravity.git
-```
-
-## Usage Gravity Animation
-
-The implementation of the gravity animation relies on the source code and files enumerated below.
-Detailed instructions concerning its usage are delineated in the section that follows.
-
-```Swift
 import UIKit
 
 class Gravity {
@@ -69,13 +46,43 @@ class Gravity {
         view.removeFromSuperview()
     }
 }
-```
 
-Use this gravity animation
+extension UIView {
+    func gravity(completion: (() -> Void)?) {
+        Gravity
+            .sequence(self,
+                      completion: completion)
+    }
+}
 
-```Swift
-    view
-        .gravity {
-            print("Completion animation")
+extension CALayer {
+    func boundAndFadeIn(completion: @escaping (() -> Void)) {
+        CATransaction.begin()
+        CATransaction.setCompletionBlock {
+            completion()
         }
-```
+        let groupAnimation = CAAnimationGroup()
+        groupAnimation.animations = [fadeInAnimation()]
+        add(groupAnimation, forKey: nil)
+        CATransaction.commit()
+    }
+
+    func boundAnimation(from: CGFloat = 1.50) -> CASpringAnimation {
+        let invalidAnimation = CASpringAnimation(keyPath: "transform.scale")
+        invalidAnimation.fromValue = from
+        invalidAnimation.toValue = 1.0
+        invalidAnimation.initialVelocity = 30.0
+        invalidAnimation.damping = 15.0
+        invalidAnimation.stiffness = 120.0
+        invalidAnimation.duration = invalidAnimation.settlingDuration
+        return invalidAnimation
+    }
+
+    func fadeInAnimation() -> CABasicAnimation {
+        let fadeOut = CABasicAnimation(keyPath: "opacity")
+        fadeOut.fromValue = 0.0
+        fadeOut.toValue = 1.0
+        fadeOut.duration = 0.3
+        return fadeOut
+    }
+}
